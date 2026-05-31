@@ -80,7 +80,7 @@ export default function Invoices() {
     }
   };
 
-  export const handlePayment = async (invoice) => {
+const handlePayment = async (invoice) => {
   try {
     // 1. Create order
     const { data } = await api.post("/payments/razorpay/order", {
