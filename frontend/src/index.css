@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-surface: #ffffff;
+  --color-surface-elevated: rgba(255, 255, 255, 0.72);
+  --color-border-subtle: rgb(226 232 240);
+
+  --shadow-glass: 0 8px 32px rgba(15, 23, 42, 0.08);
+}
+
+.dark {
+  --color-surface: rgb(15 23 42);
+  --color-surface-elevated: rgba(15, 23, 42, 0.72);
+  --color-border-subtle: rgb(30 41 59);
+
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+html {
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-300;
+  @apply dark:bg-slate-950 dark:text-slate-100;
+}
+
+/* ===================================================
+   Glass Components
+=================================================== */
+
+.glass-panel {
+  @apply border border-slate-200/80 bg-white/70 backdrop-blur-xl;
+  @apply dark:border-slate-700/60 dark:bg-slate-900/70;
+
+  box-shadow: var(--shadow-glass);
+}
+
+/* ===================================================
+   Page Headers
+=================================================== */
+
+.page-header {
+  @apply mb-6;
+}
+
+.page-title {
+  @apply text-2xl font-semibold tracking-tight;
+  @apply text-slate-900 dark:text-white;
+}
+
+.page-subtitle {
+  @apply mt-1 text-sm;
+  @apply text-slate-500 dark:text-slate-400;
+}
+
+/* ===================================================
+   Marketing Backgrounds
+=================================================== */
+
+.marketing-mesh {
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(99, 102, 241, 0.35),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 100% 50%,
+      rgba(139, 92, 246, 0.15),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 50% 30% at 0% 80%,
+      rgba(59, 130, 246, 0.12),
+      transparent
+    );
+}
+
+.marketing-grid {
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px
+    );
+
+  background-size: 64px 64px;
+
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 30%,
+    black,
+    transparent
+  );
+}
+
+/* ===================================================
+   Marquee
+=================================================== */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ===================================================
+   Hero Glow
+=================================================== */
+
+.hero-glow {
+  background: radial-gradient(
+    ellipse,
+    rgba(99, 102, 241, 0.25),
+    transparent 70%
+  );
+}
+
+/* ===================================================
+   Animated Gradient Text
+=================================================== */
+
+.gradient-text-animated {
+  background: linear-gradient(
+    90deg,
+    #a5b4fc,
+    #c4b5fd,
+    #f0abfc,
+    #a5b4fc
+  );
+
+  background-size: 300% 100%;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+
+  animation: gradient-shift 6s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ===================================================
+   CTA Shine Effect
+=================================================== */
+
+.cta-shine {
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 60%
+  );
+
+  background-size: 200% 100%;
+
+  animation: shine 4s ease-in-out infinite;
+}
+
+@keyframes shine {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ===================================================
+   Noise Texture
+=================================================== */
+
+.noise-overlay {
+  opacity: 0.04;
+
+  background-image: url(
+    "data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"
+  );
+}
+
+/* ===================================================
+   Scrollbar Styling
+=================================================== */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
