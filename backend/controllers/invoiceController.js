@@ -222,32 +222,72 @@ export const downloadInvoicePdf = async (req, res) => {
 };
 
 export const createPOSInvoice = async (req, res) => {
-  const { items } = req.body;
-
-  let subtotal = 0;
-
-  for (const item of items) {
-    subtotal += item.quantity * item.unitPrice;
-  }
-
-  const gst = subtotal * 0.18;
-  const total = subtotal + gst;
-
-  const invoice = await Invoice.create({
-    items,
-    subtotal,
-    gstTotal: gst,
-    grandTotal: total,
-  });
-
-  for (const item of items) {
-    const product = await Product.findById(item._id);
-
-    if (product) {
-      product.quantity -= item.quantity; // FIXED FIELD NAME
-      await product.save();
+  try {
+    const { items, customerName = 'POS Customer' } = req.body;
+    if (!items?.length) {
+      return res.status(400).json({ message: 'No items in cart' });
     }
-  }
 
-  res.status(201).json(invoice);
+    let subtotal = 0;
+    const gstPercent = 18;
+
+    const invoiceItems = [];
+    for (const item of items) {
+      const product = await Product.findById(item._id || item.product);
+      if (!product) {
+        return res.status(404).json({ message: `Product ${item.name || 'unknown'} not found` });
+      }
+
+      if (product.quantity < item.quantity) {
+        return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
+      }
+
+      const taxable = item.quantity * product.unitPrice;
+      const gstAmt = (taxable * gstPercent) / 100;
+      const half = gstAmt / 2;
+
+      invoiceItems.push({
+        product: product._id,
+        description: product.name,
+        quantity: item.quantity,
+        unitPrice: product.unitPrice,
+        gstPercent: gstPercent,
+        taxableAmount: taxable,
+        cgst: half,
+        sgst: half,
+        igst: 0,
+        lineTotal: taxable + gstAmt,
+      });
+
+      subtotal += taxable;
+    }
+
+    const gstTotal = subtotal * 0.18;
+    const grandTotal = subtotal + gstTotal;
+    const invoiceNumber = await nextSequence(Invoice, 'invoiceNumber', 'INV-');
+
+    const invoice = await Invoice.create({
+      invoiceNumber,
+      customerName,
+      items: invoiceItems,
+      subtotal,
+      cgstTotal: gstTotal / 2,
+      sgstTotal: gstTotal / 2,
+      gstTotal,
+      grandTotal,
+      createdBy: req.user?._id,
+    });
+
+    for (const item of items) {
+      const product = await Product.findById(item._id || item.product);
+      if (product) {
+        product.quantity -= item.quantity;
+        await product.save();
+      }
+    }
+
+    res.status(201).json(invoice);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

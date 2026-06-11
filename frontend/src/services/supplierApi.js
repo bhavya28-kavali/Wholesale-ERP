@@ -1,8 +1,6 @@
-import axios from 'axios';
+import api from './api.js';
 
-const API = '/api/suppliers';
-
-export const getSuppliers = () => axios.get(API);
-export const createSupplier = (data) => axios.post(API, data);
-export const updateSupplier = (id, data) => axios.put(`${API}/${id}`, data);
-export const deleteSupplier = (id) => axios.delete(`${API}/${id}`);
+export const getSuppliers = () => api.get('/suppliers');
+export const createSupplier = (data) => api.post('/suppliers', data);
+export const updateSupplier = (id, data) => api.put(`/suppliers/${id}`, data);
+export const deleteSupplier = (id) => api.delete(`/suppliers/${id}`);

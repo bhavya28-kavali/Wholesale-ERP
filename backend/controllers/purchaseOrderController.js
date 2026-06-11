@@ -56,19 +56,18 @@ export const updatePurchaseOrderStatus = async (req, res) => {
         const product = await Product.findById(item.product);
 
         if (product) {
-          const oldQty = product.stock;
+          const oldQty = product.quantity;
 
-          product.stock += item.quantity;
+          product.quantity += item.quantity;
           await product.save();
 
           // INVENTORY TRANSACTION LOG
           await InventoryTransaction.create({
             product: item.product,
-            type: 'PURCHASE',
-            quantity: item.quantity,
             previousQty: oldQty,
-            newQty: product.stock,
-            reference: po._id
+            newQty: product.quantity,
+            action: 'STOCK_RECEIVED',
+            performedBy: req.user?._id,
           });
         }
       }

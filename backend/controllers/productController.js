@@ -16,7 +16,7 @@ const recordStockChange = async (product, previousQty, newQty, reason, userId) =
     product: product._id,
     previousQty,
     newQty,
-    action: 'STOCK_UPDATED',
+    action: 'PRODUCT_UPDATED',
     performedBy: userId,
   });
   if (newQty <= product.lowStockThreshold) {

@@ -1,8 +1,6 @@
-import axios from 'axios';
+import api from './api.js';
 
-const API = '/api/purchase-orders';
-
-export const getPurchaseOrders = () => axios.get(API);
-export const createPurchaseOrder = (data) => axios.post(API, data);
+export const getPurchaseOrders = () => api.get('/purchase-orders');
+export const createPurchaseOrder = (data) => api.post('/purchase-orders', data);
 export const updatePOStatus = (id, status) =>
-  axios.put(`${API}/${id}/status`, { status });
+  api.put(`/purchase-orders/${id}/status`, { status });

@@ -8,7 +8,7 @@ const paymentSchema = new mongoose.Schema(
     amount: { type: Number, required: true, min: 0 },
     method: {
       type: String,
-      enum: ['cash', 'upi', 'bank_transfer', 'credit_card'],
+      enum: ['cash', 'upi', 'bank_transfer', 'credit_card', 'razorpay'],
       required: true,
     },
     status: {
@@ -19,6 +19,8 @@ const paymentSchema = new mongoose.Schema(
     paymentDate: { type: Date },
     notes: { type: String, default: '' },
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    invoice: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice' },
+    transactionId: { type: String },
   },
   { timestamps: true }
 );

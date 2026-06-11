@@ -253,17 +253,28 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(400).json({ message: 'Invalid signature' });
     }
 
-    const payment = await Payment.create({
-      invoice: invoiceId,
-      amount,
-      method: 'razorpay',
-      status: 'paid',
-      transactionId: razorpay_payment_id,
-    });
+    const invoice = await Invoice.findById(invoiceId).populate('order');
+    if (!invoice) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
 
-    const invoice = await Invoice.findById(invoiceId);
-    if (invoice) {
-      await syncInvoiceStatus(invoice.order);
+    let payment = await Payment.findOne({ transactionId: razorpay_payment_id });
+    if (!payment) {
+      const paymentNumber = await nextSequence(Payment, 'paymentNumber', 'PAY-');
+      payment = await Payment.create({
+        paymentNumber,
+        order: invoice.order?._id || invoice.order,
+        customerName: invoice.customerName,
+        amount,
+        method: 'razorpay',
+        status: 'paid',
+        paymentDate: new Date(),
+        notes: `Razorpay Order ID: ${razorpay_order_id}`,
+        invoice: invoice._id,
+        transactionId: razorpay_payment_id,
+      });
+
+      await syncInvoiceStatus(invoice.order?._id || invoice.order);
     }
 
     res.json({
@@ -284,11 +295,20 @@ export const verifyRazorpayPayment = async (req, res) => {
 export const razorpayWebhook = async (req, res) => {
   try {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    const signature = req.headers['x-razorpay-signature'];
+    if (!secret) {
+      console.warn("Razorpay Webhook secret is not configured in environment variables.");
+      return res.status(400).json({ message: 'Webhook secret not configured' });
+    }
 
+    const signature = req.headers['x-razorpay-signature'];
+    if (!signature) {
+      return res.status(400).json({ message: 'Missing webhook signature' });
+    }
+
+    const rawPayload = req.rawBody ? req.rawBody.toString() : JSON.stringify(req.body);
     const expected = crypto
       .createHmac('sha256', secret)
-      .update(JSON.stringify(req.body))
+      .update(rawPayload)
       .digest('hex');
 
     if (expected !== signature) {
@@ -299,23 +319,36 @@ export const razorpayWebhook = async (req, res) => {
 
     if (event === 'payment.captured') {
       const paymentData = req.body.payload.payment.entity;
+      const invoiceId = paymentData.notes?.invoiceId;
 
-      await Payment.create({
-        amount: paymentData.amount / 100,
-        method: 'razorpay',
-        status: 'paid',
-        transactionId: paymentData.id,
-        invoice: paymentData.notes?.invoiceId,
-      });
+      if (invoiceId) {
+        const invoice = await Invoice.findById(invoiceId).populate('order');
+        if (invoice) {
+          const existing = await Payment.findOne({ transactionId: paymentData.id });
+          if (!existing) {
+            const paymentNumber = await nextSequence(Payment, 'paymentNumber', 'PAY-');
+            await Payment.create({
+              paymentNumber,
+              order: invoice.order?._id || invoice.order,
+              customerName: invoice.customerName,
+              amount: paymentData.amount / 100,
+              method: 'razorpay',
+              status: 'paid',
+              paymentDate: new Date(),
+              notes: 'Razorpay webhook payment capture',
+              invoice: invoice._id,
+              transactionId: paymentData.id,
+            });
 
-      if (paymentData.notes?.invoiceId) {
-        const invoice = await Invoice.findById(paymentData.notes.invoiceId);
-        if (invoice) await syncInvoiceStatus(invoice.order);
+            await syncInvoiceStatus(invoice.order?._id || invoice.order);
+          }
+        }
       }
     }
 
     res.json({ success: true });
   } catch (err) {
+    console.error('Webhook error:', err);
     res.status(500).json({ message: err.message });
   }
 };

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api.js';
 
 export const createPOSInvoice = (data) =>
-  axios.post('/api/invoices/pos', data);
+  api.post('/invoices/pos', data);

@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/low-stock', protect, async (req, res) => {
   try {
     const products = await Product.find({
-      $expr: { $lte: ['$stock', '$minStockLevel'] }
+      $expr: { $lte: ['$quantity', '$minStockLevel'] }
     });
 
     res.json(products);

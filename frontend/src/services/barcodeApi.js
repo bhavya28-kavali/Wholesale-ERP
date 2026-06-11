@@ -1,5 +1,3 @@
-import axios from 'axios';
+import api from './api.js';
 
-const API = '/api/barcode';
-
-export const scanBarcode = (sku) => axios.get(`${API}/${sku}`);
+export const scanBarcode = (sku) => api.get(`/barcodes/${sku}`);

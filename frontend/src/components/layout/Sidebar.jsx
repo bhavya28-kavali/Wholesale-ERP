@@ -1,14 +1,32 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, FileText, BarChart3, CreditCard, Boxes } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  FileText,
+  BarChart3,
+  CreditCard,
+  Boxes,
+  Calculator,
+  QrCode,
+  History,
+  Truck,
+  ClipboardList
+} from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import { canAccess } from '../../utils/roles';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, page: 'dashboard' },
   { to: '/products', label: 'Products', icon: Package, page: 'products' },
+  { to: '/pos', label: 'POS Billing', icon: Calculator, page: 'pos' },
+  { to: '/barcodes', label: 'Barcode Lookup', icon: QrCode, page: 'barcodes' },
   { to: '/orders', label: 'Orders', icon: ShoppingCart, page: 'orders' },
   { to: '/invoices', label: 'Invoices', icon: FileText, page: 'invoices' },
   { to: '/payments', label: 'Payments', icon: CreditCard, page: 'payments' },
+  { to: '/inventory-history', label: 'Inventory Log', icon: History, page: 'inventory-history' },
+  { to: '/suppliers', label: 'Suppliers', icon: Truck, page: 'suppliers' },
+  { to: '/purchase-orders', label: 'Purchase Orders', icon: ClipboardList, page: 'purchase-orders' },
   { to: '/analytics', label: 'Analytics', icon: BarChart3, page: 'analytics' },
 ];
 

@@ -13,6 +13,8 @@ import { protect, authorize } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.post("/razorpay/webhook", razorpayWebhook);
+
 router.use(protect);
 router.use(authorize('admin', 'accountant'));
 
@@ -24,7 +26,6 @@ router.delete('/:id', deletePayment);
 router.post("/razorpay/order", createRazorpayOrder);
 router.post("/razorpay/verify", verifyRazorpayPayment);
 
-router.post("/razorpay/webhook", razorpayWebhook);
 
 
 export default router;

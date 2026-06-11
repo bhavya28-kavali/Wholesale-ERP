@@ -25,7 +25,11 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app);
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 // SOCKET INIT (backend only)
 const io = initSocket(server);
 app.set('io', io);
